@@ -80,11 +80,8 @@ export default function LoginPage() {
                 className="input-field"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="tester01 or admin"
+                placeholder="host id"
               />
-              <p className="text-xs text-white/55 mt-2">
-                Allowed Host IDs: tester01 to tester10, and admin.
-              </p>
             </div>
 
             <div>
