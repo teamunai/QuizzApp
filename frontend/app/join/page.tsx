@@ -93,7 +93,7 @@ export default function JoinPage() {
                 type="text"
                 value={rollNumber}
                 onChange={(e) => setRollNumber(e.target.value)}
-                placeholder="E.g., CSE-22-019"
+                placeholder="E.g., 2301730326"
                 className="input-field"
               />
             </div>
@@ -104,7 +104,7 @@ export default function JoinPage() {
                 type="text"
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
-                placeholder="ABC123"
+                placeholder="123456"
                 maxLength={6}
                 className="input-field text-center text-2xl font-mono tracking-[0.35em]"
               />
