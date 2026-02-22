@@ -346,7 +346,7 @@ export default function CreateQuizPage() {
                   type="number"
                   value={numQuestions}
                   onChange={(e) => setNumQuestions(parseInt(e.target.value) || 1)}
-                  min="3"
+                  min="1"
                   max="50"
                   className="input-field"
                 />
