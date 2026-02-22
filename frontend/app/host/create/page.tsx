@@ -26,7 +26,7 @@ export default function CreateQuizPage() {
   const [file, setFile] = useState<File | null>(null)
   const [numQuestions, setNumQuestions] = useState(10)
   const [difficulty, setDifficulty] = useState('medium')
-  const [defaultTimeLimit, setDefaultTimeLimit] = useState(30)
+  const [defaultTimeLimit, setDefaultTimeLimit] = useState(15)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [questions, setQuestions] = useState<Question[]>([])
@@ -370,7 +370,7 @@ export default function CreateQuizPage() {
               <input
                 type="number"
                 value={defaultTimeLimit}
-                onChange={(e) => setDefaultTimeLimit(Math.max(5, Math.min(120, parseInt(e.target.value) || 30)))}
+                onChange={(e) => setDefaultTimeLimit(Math.max(1, Math.min(120, parseInt(e.target.value) || 15)))}
                 min="5"
                 max="120"
                 className="input-field"
