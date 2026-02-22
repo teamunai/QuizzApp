@@ -7,7 +7,7 @@ class QuestionSchema(BaseModel):
     question_text: str = Field(..., min_length=5)
     options: List[str] = Field(..., min_items=2, max_items=6)
     correct_answer: str
-    time_limit: int = Field(default=30, ge=5, le=120)
+    time_limit: int = Field(default=15, ge=1, le=120)
 
 
 class QuizCreateRequest(BaseModel):
@@ -44,7 +44,7 @@ class QuestionResponse(BaseModel):
 class AIGenerateRequest(BaseModel):
     topic: Optional[str] = None
     file_content: Optional[str] = None
-    num_questions: int = Field(default=10, ge=3, le=50)
+    num_questions: int = Field(default=10, ge=1, le=50)
     difficulty: str = Field(default="medium", pattern="^(easy|medium|hard)$")
     
     @validator('topic', 'file_content')
