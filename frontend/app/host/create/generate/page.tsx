@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Upload, Sparkles, Trash2, Edit, Play, X } from 'lucide-react'
@@ -17,7 +17,7 @@ interface Question {
   time_limit: number
 }
 
-export default function CreateQuizPage() {
+function QuizGeneratorContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const source = searchParams.get('source')
@@ -579,5 +579,25 @@ export default function CreateQuizPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// ----------------------------------------------------------------------
+// Main Export with Suspense Boundary Wrapper
+// ----------------------------------------------------------------------
+export default function CreateQuizPage() {
+  return (
+    <Suspense 
+      fallback={
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="card text-center py-10 max-w-md w-full">
+            <div className="animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-4" />
+            <p className="text-white/60">Loading generator...</p>
+          </div>
+        </div>
+      }
+    >
+      <QuizGeneratorContent />
+    </Suspense>
   )
 }
