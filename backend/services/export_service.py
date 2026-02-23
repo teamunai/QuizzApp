@@ -10,15 +10,29 @@ from typing import List, Dict
 
 
 def generate_csv(game_data: dict) -> BytesIO:
-    """Generate CSV export of game results"""
-    
-    # Prepare data for DataFrame
-    rows = []
+    """Generate CSV export with final leaderboard + detailed answers."""
+
+    leaderboard_rows = []
+    detailed_rows = []
+
     for player in game_data['players']:
+        leaderboard_rows.append({
+            'Rank': player['rank'],
+            'Player Name': player['name'],
+            'Roll Number': player.get('roll_number') or '',
+            'Total Score': player['score'],
+            'Correct Answers': player['correct_count'],
+            'Answered Questions': player['total_answers'],
+            'Total Questions': game_data['total_questions'],
+            'Accuracy %': player['accuracy'],
+        })
+
         for answer in player.get('answers', []):
-            rows.append({
+            detailed_rows.append({
+                'Rank': player['rank'],
                 'Player Name': player['name'],
                 'Roll Number': player.get('roll_number') or '',
+                'Question #': answer['question_number'],
                 'Question': answer['question_text'],
                 'Player Answer': answer['answer'],
                 'Correct Answer': answer['correct_answer'],
@@ -26,12 +40,20 @@ def generate_csv(game_data: dict) -> BytesIO:
                 'Time Taken (s)': round(answer['time_taken'], 2),
                 'Points Earned': answer['points_earned']
             })
-    
-    df = pd.DataFrame(rows)
-    
-    # Convert to CSV
+
+    leaderboard_df = pd.DataFrame(leaderboard_rows)
+    detailed_df = pd.DataFrame(detailed_rows)
+
     buffer = BytesIO()
-    df.to_csv(buffer, index=False, encoding='utf-8')
+
+    # Section 1: Final leaderboard.
+    leaderboard_df.to_csv(buffer, index=False, encoding='utf-8')
+
+    # Section 2: Detailed answers.
+    if not detailed_df.empty:
+        buffer.write(b"\n\nDetailed Results\n")
+        detailed_df.to_csv(buffer, index=False, encoding='utf-8')
+
     buffer.seek(0)
     
     return buffer
@@ -56,14 +78,16 @@ def generate_excel(game_data: dict) -> BytesIO:
         
         # Leaderboard sheet
         leaderboard = []
-        for idx, player in enumerate(game_data['players'], 1):
+        for player in game_data['players']:
             leaderboard.append({
-                'Rank': idx,
+                'Rank': player['rank'],
                 'Player Name': player['name'],
                 'Roll Number': player.get('roll_number') or '',
                 'Total Score': player['score'],
                 'Correct Answers': player['correct_count'],
-                'Accuracy %': round((player['correct_count'] / game_data['total_questions']) * 100, 2)
+                'Answered Questions': player['total_answers'],
+                'Total Questions': game_data['total_questions'],
+                'Accuracy %': player['accuracy'],
             })
         pd.DataFrame(leaderboard).to_excel(writer, sheet_name='Leaderboard', index=False)
         
@@ -72,6 +96,7 @@ def generate_excel(game_data: dict) -> BytesIO:
         for player in game_data['players']:
             for answer in player.get('answers', []):
                 detailed.append({
+                    'Rank': player['rank'],
                     'Player': player['name'],
                     'Roll Number': player.get('roll_number') or '',
                     'Question #': answer['question_number'],
@@ -174,16 +199,26 @@ def prepare_game_data_for_export(game_session, players, questions, answers) -> d
                     'points_earned': answer.points_earned
                 })
         
+        total_answers = len(player_answers)
+        total_questions = len(questions)
+        accuracy = round((correct_count / total_questions) * 100, 2) if total_questions else 0
+
         players_data.append({
             'name': player.name,
             'roll_number': player.roll_number,
             'score': player.score,
             'correct_count': correct_count,
+            'total_answers': total_answers,
+            'accuracy': accuracy,
             'answers': answers_detail
         })
     
-    # Sort by score
-    players_data.sort(key=lambda x: x['score'], reverse=True)
+    # Final leaderboard ordering.
+    players_data.sort(key=lambda x: (-x['score'], -x['correct_count'], x['name'].lower()))
+
+    # Add rank after sorting.
+    for idx, player in enumerate(players_data, start=1):
+        player['rank'] = idx
     
     return {
         'quiz_title': game_session.quiz.title,
