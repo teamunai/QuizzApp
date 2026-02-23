@@ -17,7 +17,8 @@ export default function JoinPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const value = new URLSearchParams(window.location.search).get('pin') || ''
+    const params = new URLSearchParams(window.location.search)
+    const value = params.get('quizId') || params.get('pin') || ''
     setCode(value.toUpperCase())
 
     const authUser = getAuthUser()
@@ -93,18 +94,18 @@ export default function JoinPage() {
                 type="text"
                 value={rollNumber}
                 onChange={(e) => setRollNumber(e.target.value)}
-                placeholder="E.g., 2301730326"
+                placeholder="E.g., CSE-22-019"
                 className="input-field"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Given Code</label>
+              <label className="block text-sm font-semibold mb-2">Quiz Code</label>
               <input
                 type="text"
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
-                placeholder="123456"
+                placeholder="ABC123"
                 maxLength={6}
                 className="input-field text-center text-2xl font-mono tracking-[0.35em]"
               />
