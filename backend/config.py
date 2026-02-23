@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: List[str] = [
         "http://localhost:3000",
-        "https://certifiacate-app-frontend-36he.vercel.app",
+        "https://quizz-app-nine-azure.vercel.app",
         "*" 
     ]
 
