@@ -211,8 +211,6 @@ export default function HostGamePage() {
   }, [timeLeft, currentQuestion, pin, gameEnded]);
 
   const handleNextQuestion = async () => {
-    if (timeLeft > 0) return;
-
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((prev) => prev + 1);
       return;
@@ -424,8 +422,7 @@ export default function HostGamePage() {
           </div>
           <Button
             onClick={handleNextQuestion}
-            disabled={timeLeft > 0}
-            className="btn-primary px-8 py-3 text-base disabled:opacity-60 disabled:cursor-not-allowed"
+            className="btn-primary px-8 py-3 text-base"
           >
             {currentIndex < questions.length - 1 ? "Next Question" : "End Game"}
           </Button>
