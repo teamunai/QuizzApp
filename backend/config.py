@@ -58,6 +58,7 @@ class Settings(BaseSettings):
     # Auth
     JWT_SECRET_KEY: str = "change-me-in-production"
     JWT_EXPIRE_MINUTES: int = 60 * 24
+    FRONTEND_BASE_URL: str = "http://localhost:3000"
     
     class Config:
         env_file = ".env"
