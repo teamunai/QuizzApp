@@ -55,9 +55,14 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         content=content,
     )
 
+# Replace your current app.add_middleware block with this:
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=[
+        "http://localhost:3000", 
+        "https://quizz-app-nine-azure.vercel.app" # <-- Notice: NO trailing slash at the end!
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
