@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Play } from "lucide-react";
+import { ArrowLeft, Play, Copy, Check } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getSocket } from "@/lib/socket";
@@ -24,6 +24,9 @@ export default function LobbyPage() {
   const [templateUploaded, setTemplateUploaded] = useState(false);
   const [savingCertificate, setSavingCertificate] = useState(false);
   const [certificateMessage, setCertificateMessage] = useState("");
+  const [joinLink, setJoinLink] = useState("");
+  const [joinQrCode, setJoinQrCode] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const playerCount = useMemo(() => players.length, [players]);
 
@@ -48,6 +51,8 @@ export default function LobbyPage() {
       .then((response) => {
         if (!mounted) return;
         setPlayers(response.data?.players || []);
+        setJoinLink(response.data?.join_link || "");
+        setJoinQrCode(response.data?.qr_code || "");
       })
       .catch(() => {
         if (!mounted) return;
@@ -125,6 +130,17 @@ export default function LobbyPage() {
     }
   };
 
+  const handleCopyJoinLink = async () => {
+    if (!joinLink) return;
+    try {
+      await navigator.clipboard.writeText(joinLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch (_) {
+      setError("Could not copy join link");
+    }
+  };
+
   const handleSaveCertificateSettings = async () => {
     if (!pin || savingCertificate) return;
     setSavingCertificate(true);
@@ -192,6 +208,39 @@ export default function LobbyPage() {
             <p className="text-white/60 text-sm uppercase tracking-widest mb-2">Game PIN</p>
             <h2 className="text-5xl md:text-7xl font-mono font-bold tracking-wider text-red-300">{pin}</h2>
             <p className="text-white/60 mt-3">Share this PIN with players to join</p>
+          </div>
+        </div>
+
+        <div className="card mb-6">
+          <div className="grid gap-5 md:grid-cols-[1fr_220px] md:items-start">
+            <div>
+              <h3 className="text-2xl font-display font-bold mb-3">Direct Join Link</h3>
+              <p className="text-white/65 text-sm mb-3">Players can open this link, enter details, and join directly.</p>
+              <div className="bg-white/5 border border-white/15 rounded-lg p-3 break-all text-sm font-mono text-white/85">
+                {joinLink || "Loading join link..."}
+              </div>
+              <Button onClick={handleCopyJoinLink} disabled={!joinLink} className="btn-secondary mt-3">
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? "Copied" : "Copy Join Link"}
+              </Button>
+            </div>
+
+            <div className="mx-auto md:mx-0">
+              <div className="bg-white rounded-xl p-3 shadow-lg">
+                {joinQrCode ? (
+                  <img
+                    src={joinQrCode}
+                    alt="Join quiz QR code"
+                    className="w-[180px] h-[180px] md:w-[200px] md:h-[200px]"
+                  />
+                ) : (
+                  <div className="w-[180px] h-[180px] md:w-[200px] md:h-[200px] flex items-center justify-center text-slate-500 text-sm">
+                    Loading QR...
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-white/60 mt-2 text-center">Scan to open join link</p>
+            </div>
           </div>
         </div>
 
