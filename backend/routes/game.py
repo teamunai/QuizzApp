@@ -18,6 +18,11 @@ CERTIFICATE_TEMPLATES_DIR = Path(__file__).resolve().parents[1] / "uploads" / "c
 CERTIFICATE_TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def _build_join_link(pin: str) -> str:
+    base_url = settings.FRONTEND_BASE_URL.rstrip("/")
+    return f"{base_url}/join?quizId={pin}"
+
+
 @router.post("/create", response_model=dict)
 async def create_game_session(game_data: GameSessionCreate, db: Session = Depends(get_db)):
     """Create a new game session with unique PIN"""
@@ -44,15 +49,16 @@ async def create_game_session(game_data: GameSessionCreate, db: Session = Depend
     db.commit()
     db.refresh(game_session)
     
-    # Generate QR code for joining
-    join_url = f"https://yourdomain.vercel.app/join?pin={pin}"
-    qr_code = generate_qr_code(join_url)
+    # Generate direct join link and QR code.
+    join_link = _build_join_link(pin)
+    qr_code = generate_qr_code(join_link)
     
     return {
         "id": game_session.id,
         "quiz_id": game_session.quiz_id,
         "quiz_title": quiz.title,
         "pin": game_session.pin,
+        "join_link": join_link,
         "qr_code": qr_code,
         "host_name": game_session.host_name,
         "status": game_session.status,
@@ -175,10 +181,14 @@ async def get_game_status(pin: str, db: Session = Depends(get_db)):
     
     players = db.query(Player).filter(Player.game_session_id == game_session.id).all()
     
+    join_link = _build_join_link(game_session.pin)
+
     return {
         "id": game_session.id,
         "quiz_id": game_session.quiz_id,
         "pin": game_session.pin,
+        "join_link": join_link,
+        "qr_code": generate_qr_code(join_link),
         "status": game_session.status,
         "current_question_index": game_session.current_question_index,
         "player_count": len(players),
